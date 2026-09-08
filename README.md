@@ -43,6 +43,11 @@ An enterprise-grade, multi-tenant Competitive Intelligence platform built with *
 - **Bilingual English & Arabic**: Built-in dynamic RTL/LTR layout with dedicated translations (`lang/en/tenant.php` & `lang/ar/tenant.php`).
 - **Luxury Obsidian Theme**: Ambient glow horizon arcs, glassmorphism cards (`#09090b`), Plus Jakarta Sans and Cairo typography.
 
+### 7. 🧩 Dynamic Per-Tenant Customization Layer
+- Allows overriding any core service, repository, DTO, or form request on a per-tenant basis without altering shared codebase.
+- High-performance caching (24h TTL) with automatic observer-driven cache invalidation and central audit trail.
+- 📖 **Comprehensive Guide**: See [docs/TENANT_CUSTOMIZATION.md](docs/TENANT_CUSTOMIZATION.md).
+
 ---
 
 ## 🛠️ Technology Stack
