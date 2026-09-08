@@ -1,0 +1,30 @@
+{
+    "agents": [
+        "claude_code",
+        "opencode",
+        "antigravity"
+    ],
+    "cloud": false,
+    "guidelines": true,
+    "mcp": true,
+    "nightwatch": false,
+    "sail": false,
+    "skills": [
+        "infer-conventions",
+        "laravel-best-practices",
+        "testing-best-practices",
+        "tailwindcss-development",
+        "echo-development",
+        "stancl-tenancy-development",
+        "laravel-modules-development",
+        "livewire-development",
+        "ui-ux-design-system",
+        "blade-component-architecture",
+        "cybersecurity-audit-hardening",
+        "qa-testing-strategy",
+        "clean-architecture-solid",
+        "code-review-smells",
+        "refactoring-patterns",
+        "api-design-standards"
+    ]
+}
