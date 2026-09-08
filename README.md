@@ -1,58 +1,184 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# ⚡ Compitator AI — Multi-Tenant Competitive Intelligence & Market Radar Platform
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+An enterprise-grade, multi-tenant Competitive Intelligence platform built with **Laravel**, **Livewire 3**, and **Stancl Tenancy**. Compitator AI orchestrates specialized autonomous AI agents, recursive web scrapers, tech-stack fingerprinting, and customer sentiment mining to deliver real-time competitor battlecards, pricing reverse-engineering, and 1-to-1 product gap analysis.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🌟 Key Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### 1. 🤖 Autonomous Multi-Agent Intelligence System
+- **Core Market Analysis Agent (`CompetitorAnalysisAgent`)**: Evaluates comprehensive market landscapes, strategic opportunities, and competitive moats.
+- **Pricing Strategy Agent (`PricingStrategyAgent`)**: Reverse-engineers pricing packaging, enterprise tiers, add-ons, and hidden charges.
+- **Sales Battlecard Agent (`SalesBattlecardAgent`)**: Generates 30-second elevator pitches, objection-handling talk tracks, and prospect trap questions for sales teams.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 2. 🕵️ Automated Deep Intelligence Tools
+- **Deep Web Scraper (`DeepWebScraperTool`)**: Crawls landing pages, traverses internal links concurrently with HTTP pools, and extracts strategic copy from pricing, feature, changelog, and about pages.
+- **Technology Stack Detector (`TechStackDetectorTool`)**: Scans HTML headers, scripts, and meta tags across 5 key categories:
+  - *Billing & Checkout*: Stripe, Paddle, Chargebee, Paymob, LemonSqueezy.
+  - *Analytics*: Google Analytics 4, Mixpanel, Segment, PostHog, Hotjar.
+  - *Customer Support*: Intercom, Crisp, Zendesk, HubSpot.
+  - *Frontend / Frameworks*: Next.js, Nuxt.js, React, Vue, Tailwind CSS, WordPress.
+  - *Cloud / CDN*: Cloudflare, Vercel, AWS CloudFront, Fastly.
+- **Customer Sentiment Miner (`CustomerSentimentMinerTool`)**: Synthesizes ratings, review signals, customer pain points, and vulnerabilities into actionable sales exploitation strategies.
 
-## Learning Laravel
+### 3. 🎯 Tenant Product Profile & 1-to-1 Gap Analysis
+- Injects the tenant's own product context directly into the AI prompt window:
+  - Product solution name & value proposition
+  - Pricing model & target Ideal Customer Profile (ICP)
+  - Key differentiators & competitive moats
+- Produces direct, asymmetric comparison matrices and tactical win-themes against each analyzed competitor.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 4. 🏢 Multi-Tenant Monolith (Database-per-Tenant)
+- **Stancl Tenancy v3**: Complete database and cache isolation across enterprise partitions.
+- **Automatic Lifecycle Provisioning**: Automatically creates MySQL database partitions, runs schema migrations, and seeds tenant administrators.
+- **Tenant Domain Routing**: Subdomain-based identification (e.g. `acme.localhost:8000`) with isolation middleware.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 5. 🛡️ Central Admin Command Hub
+- **Tenant Data Browser**: Safely inspect partitioned tenant databases, isolated schemas, and manage tenant team users directly from central admin.
+- **Subscription Plan Engine**: Multi-tier billing management localized with Egyptian Pound (EGP) and billing periods.
+- **Audit & Security Trail**: Centralized immutable activity logging (`ActivityLog`) tracking admin operations and tenant user lifecycles.
+- **WordPress-like Modular Block Editor**: Visual landing page and post builder supporting Hero, Feature Grid, Pricing, and FAQ blocks with bilingual translation.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+### 6. 🌐 Bilingual & Luxury Aesthetics
+- **Bilingual English & Arabic**: Built-in dynamic RTL/LTR layout with dedicated translations (`lang/en/tenant.php` & `lang/ar/tenant.php`).
+- **Luxury Obsidian Theme**: Ambient glow horizon arcs, glassmorphism cards (`#09090b`), Plus Jakarta Sans and Cairo typography.
 
-## Agentic Development
+---
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## 🛠️ Technology Stack
 
+| Layer | Technology |
+| :--- | :--- |
+| **Backend Framework** | Laravel 11 / 12 (PHP 8.5) |
+| **Multi-Tenancy** | Stancl Tenancy v3 (Database-per-tenant partition) |
+| **Reactive UI** | Livewire 3 + Alpine.js |
+| **Styling & Design** | Tailwind CSS v4 + Obsidian Luxury SaaS System |
+| **Localization** | `mcamara/laravel-localization` (Arabic RTL & English) |
+| **Database** | MySQL (Central + Dynamic Tenant Schemas) |
+| **Media & Permissions** | Spatie MediaLibrary & Spatie Laravel-Permission |
+| **Code Standards** | Laravel Pint Code Formatter |
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- PHP >= 8.2 (PHP 8.5 recommended) with `pdo_mysql`, `mbstring`, `openssl`, `curl` extensions
+- Composer >= 2.x
+- Node.js >= 18.x & npm
+- MySQL Server
+
+### 1. Installation
 ```bash
-composer require laravel/boost --dev
+# Clone the repository
+git clone git@github.com:Ahmedfargh/competitor-analyzer-.git
+cd competitor-analyzer-
 
-php artisan boost:install
+# Install PHP dependencies
+composer install
+
+# Install NPM dependencies & compile assets
+npm install
+npm run build
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### 2. Environment Configuration
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-## Contributing
+Update your `.env` database connection:
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=laravel_compitator_db
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 3. Database Migrations & Initial Seeding
+```bash
+# Run central migrations and seed master admin & plans
+php artisan migrate --seed
+```
 
-## Code of Conduct
+### 4. Running the Application
+```bash
+# Start Laravel development server
+php artisan serve
+```
+The central app will be live at `http://localhost:8000` (or `http://127.0.0.1:8000`).
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## 🔐 Default Access & Credentials
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Central Admin Hub
+- **URL**: `http://localhost:8000/en/admin/login`
+- **Email**: `admin@compitator.com`
+- **Password**: `password`
 
-## License
+### Provisioned Demo Tenant
+- **Tenant Portal**: `http://acme.localhost:8000/login`
+- **Email**: `admin@acme.com` *(or `admin@acme.localhost`)*
+- **Password**: `password`
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+## 🧪 Automated Testing Suite
+
+The application includes comprehensive feature test coverage for all multi-tenant boundaries, AI tools, and admin workflows:
+
+```bash
+# Run the entire test suite
+php artisan test --compact
+
+# Run tenant user management & subdomain auth tests
+php artisan test --compact --filter=TenantUserManagementAndAuthTest
+
+# Run competitor intelligence & deep scraper tests
+php artisan test --compact --filter=CompetitorAgentDeepIntelligenceTest
+
+# Run tenant product profile & 1-to-1 gap analysis tests
+php artisan test --compact --filter=TenantProductProfileAndGapAnalysisTest
+
+# Run tenant CRUD & layer customizer tests
+php artisan test --compact --filter=AdminTenantCrudTest
+
+# Run code style formatting check
+vendor/bin/pint --format agent
+```
+
+---
+
+## 📂 Project Architecture Overview
+
+```text
+├── Modules/
+│   ├── Admin/             # Central admin command hub, plans, posts, audit logs
+│   └── Tenant/            # Tenant domain controllers, auth, seeders, views
+├── app/
+│   ├── Ai/
+│   │   ├── Agents/        # Specialist agents (CompetitorAnalysis, Pricing, Battlecard)
+│   │   └── Tools/         # Intelligence tools (DeepWebScraper, TechStack, Sentiment)
+│   ├── Livewire/          # Reactive Livewire 3 components (TenantManager, DataBrowser, etc.)
+│   ├── Models/            # Eloquent models (Tenant, User, Post, ActivityLog, etc.)
+│   ├── Observers/         # Model lifecycle observers with central audit trail
+│   └── Providers/         # TenancyServiceProvider, AppServiceProvider
+├── database/
+│   ├── migrations/        # Central database migrations
+│   └── migrations/tenant/ # Tenant database migrations (partitioned users, cache, etc.)
+├── lang/
+│   ├── en/                # English translations (admin, tenant, marketing)
+│   └── ar/                # Arabic translations (admin, tenant, marketing)
+└── routes/
+    ├── web.php            # Central marketing & localized public routes
+    └── tenant.php         # Subdomain-isolated tenant routes (auth:tenant)
+```
+
+---
+
+## 📄 License
+This software is open-sourced under the [MIT license](https://opensource.org/licenses/MIT).
