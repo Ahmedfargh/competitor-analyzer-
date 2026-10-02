@@ -1,0 +1,107 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: laravel_name
+    restart: unless-stopped
+    ports: 
+      - "9999:9999"
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - db
+      - redis
+    networks:
+      - laravel-network
+  db:
+    image: mysql:8.0
+    container_name: competator_db
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DB_HOST: db
+      REDIS_HOST: redis
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD} 
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - laravel-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${DB_USERNAME}", "-p${DB_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  redis:
+    image: redis:alpine
+    container_name: competitor_redis
+    restart: unless-stopped
+    command: redis-server
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - laravel-network
+  reverb:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: competator_reverb
+    command: php artisan reverb:start --host=0.0.0.0 --port=9090
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      redis:
+        condition: service_started
+      db:
+        condition: service_healthy # Waits for MySQL ping to pass before booting queue
+    ports:
+      - "9090:9090"
+    networks:
+      - laravel-network
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: php artisan queue:work
+    container_name: competator_queue
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      db:
+        condition: service_healthy # Waits for MySQL ping to pass before booting queue
+      redis:
+        condition: service_started
+    networks:
+      - laravel-network
+networks:
+  laravel-network:
+    driver: bridge
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
