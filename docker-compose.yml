@@ -39,7 +39,9 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
-      - laravel-network
+      laravel-network:
+        aliases:
+          - db
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${DB_USERNAME}", "-p${DB_PASSWORD}"]
       interval: 5s
@@ -55,7 +57,9 @@ services:
     volumes:
       - redis_data:/data
     networks:
-      - laravel-network
+      laravel-network:
+        aliases:
+          - redis
   reverb:
     build:
       context: .
