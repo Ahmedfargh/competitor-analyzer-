@@ -2,192 +2,181 @@ terraform {
   required_version = ">= 1.5.0"
 
   required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
+    docker = {
+      source  = "kreuzwerker/docker"
+      version = "~> 3.0.2"
     }
   }
 }
 
-provider "aws" {
-  region = var.aws_region
+locals {
+  # Parse .env file into a Key => Value Map
+  env_map = {
+    for line in split("\n", file("${path.module}/../.env")) :
+    split("=", line)[0] => join("=", slice(split("=", line), 1, length(split("=", line))))
+    if trimspace(line) != "" && !startswith(trimspace(line), "#") && length(split("=", line)) >= 2
+  }
 
-  default_tags {
-    tags = {
-      Project     = var.project_name
-      Environment = var.environment
-      ManagedBy   = "Terraform"
-    }
+  # Convert .env map into ["KEY=VALUE"] list for Docker
+  env_list = [
+    for k, v in local.env_map : "${k}=${v}"
+    if !contains(["DB_HOST", "REDIS_HOST", "DB_PORT", "REDIS_PORT"], k)
+  ]
+}
+
+provider "docker" {
+  host = "unix:///var/run/docker.sock"
+}
+
+# -----------------------------------------------------------------------------
+# 1. Docker Network
+# -----------------------------------------------------------------------------
+resource "docker_network" "competator_network" {
+  name = "competator-network-resource"
+}
+
+# -----------------------------------------------------------------------------
+# 2. Data Volumes
+# -----------------------------------------------------------------------------
+resource "docker_volume" "database_volume" {
+  name = "competator-database-volume"
+}
+
+resource "docker_volume" "redis_volume" {
+  name = "competator-cache-volume"
+}
+
+# -----------------------------------------------------------------------------
+# 3. MySQL Database Container
+# -----------------------------------------------------------------------------
+resource "docker_image" "mysql" {
+  name         = "mysql:8.0"
+  keep_locally = true
+}
+
+resource "docker_container" "competator_db_container" {
+  name  = "competator_db_container"
+  image = docker_image.mysql.image_id
+
+  env = [
+    "MYSQL_DATABASE=${local.env_map["DB_DATABASE"]}",
+    "MYSQL_USER=${local.env_map["DB_USERNAME"]}",
+    "MYSQL_PASSWORD=${local.env_map["DB_PASSWORD"]}",
+    "MYSQL_ROOT_PASSWORD=${local.env_map["DB_PASSWORD"]}"
+  ]
+
+  ports {
+    internal = 3306
+    external = 3308
+  }
+
+  volumes {
+    volume_name    = docker_volume.database_volume.name
+    container_path = "/var/lib/mysql"
+  }
+
+  networks_advanced {
+    name    = docker_network.competator_network.name
+    aliases = ["db"]
   }
 }
 
 # -----------------------------------------------------------------------------
-# 1. VPC & Networking
+# 4. Redis Cache Container
 # -----------------------------------------------------------------------------
-resource "aws_vpc" "main" {
-  cidr_block           = "10.0.0.0/16"
-  enable_dns_hostnames = true
-  enable_dns_support   = true
-
-  tags = {
-    Name = "${var.project_name}-vpc"
-  }
+resource "docker_image" "redis" {
+  name         = "redis:alpine"
+  keep_locally = true
 }
 
-resource "aws_internet_gateway" "gw" {
-  vpc_id = aws_vpc.main.id
+resource "docker_container" "competator_redis" {
+  name  = "competator_redis_container"
+  image = docker_image.redis.image_id
 
-  tags = {
-    Name = "${var.project_name}-igw"
-  }
-}
-
-resource "aws_subnet" "public" {
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.1.0/24"
-  map_public_ip_on_launch = true
-  availability_zone       = "${var.aws_region}a"
-
-  tags = {
-    Name = "${var.project_name}-public-subnet"
-  }
-}
-
-resource "aws_route_table" "public" {
-  vpc_id = aws_vpc.main.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.gw.id
+  ports {
+    internal = 6379
+    external = 6380
   }
 
-  tags = {
-    Name = "${var.project_name}-public-rt"
-  }
-}
-
-resource "aws_route_table_association" "public" {
-  subnet_id      = aws_subnet.public.id
-  route_table_id = aws_route_table.public.id
-}
-
-# -----------------------------------------------------------------------------
-# 2. Security Group (Docker, FrankenPHP, Reverb, HTTP/S, SSH)
-# -----------------------------------------------------------------------------
-resource "aws_security_group" "docker_host" {
-  name        = "${var.project_name}-docker-sg"
-  description = "Security group for Docker host running Laravel Octane, Reverb, and MySQL"
-  vpc_id      = aws_vpc.main.id
-
-  # SSH
-  ingress {
-    description = "SSH Access"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = [var.allowed_ssh_cidr]
+  volumes {
+    volume_name    = docker_volume.redis_volume.name
+    container_path = "/data"
   }
 
-  # Standard Web Traffic
-  ingress {
-    description = "HTTP"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    description = "HTTPS"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # Laravel FrankenPHP Octane App Port
-  ingress {
-    description = "Laravel Octane FrankenPHP Port"
-    from_port   = 9999
-    to_port     = 9999
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # Laravel Reverb WebSocket Port
-  ingress {
-    description = "Laravel Reverb WebSockets"
-    from_port   = 9090
-    to_port     = 9090
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # Outbound to Internet
-  egress {
-    description = "Allow all outbound traffic"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "${var.project_name}-docker-sg"
+  networks_advanced {
+    name    = docker_network.competator_network.name
+    aliases = ["redis"]
   }
 }
 
 # -----------------------------------------------------------------------------
-# 3. Key Pair & EC2 Instance
+# 5. Build Laravel App Docker Image
 # -----------------------------------------------------------------------------
-resource "aws_key_pair" "deployer" {
-  count      = var.ssh_public_key != "" ? 1 : 0
-  key_name   = "${var.project_name}-deployer-key"
-  public_key = var.ssh_public_key
-}
-
-# Latest Ubuntu 24.04 LTS AMI
-data "aws_ami" "ubuntu" {
-  most_recent = true
-  owners      = ["099720109477"] # Canonical
-
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-*"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
+resource "docker_image" "http_app" {
+  name = "compitatortfapp:latest"
+  build {
+    context    = "${path.module}/.."
+    dockerfile = "Dockerfile"
   }
 }
 
-resource "aws_instance" "docker_server" {
-  ami                         = data.aws_ami.ubuntu.id
-  instance_type               = var.instance_type
-  subnet_id                   = aws_subnet.public.id
-  vpc_security_group_ids      = [aws_security_group.docker_host.id]
-  key_name                    = var.ssh_public_key != "" ? aws_key_pair.deployer[0].key_name : null
-  associate_public_ip_address = true
-  user_data                   = file("${path.module}/user_data.sh")
+# -----------------------------------------------------------------------------
+# 6. Laravel FrankenPHP Octane App Container
+# -----------------------------------------------------------------------------
+resource "docker_container" "app" {
+  name  = "http_app"
+  image = docker_image.http_app.image_id
 
-  root_block_device {
-    volume_size           = 30
-    volume_type           = "gp3"
-    delete_on_termination = true
+  # Combines .env variables with Docker internal network hosts
+  env = concat(local.env_list, [
+    "DB_HOST=db",
+    "DB_PORT=3306",
+    "REDIS_HOST=redis",
+    "REDIS_PORT=6379"
+  ])
+
+  ports {
+    internal = 9999
+    external = 9999
   }
 
-  tags = {
-    Name = "${var.project_name}-server"
+  networks_advanced {
+    name = docker_network.competator_network.name
   }
+
+  depends_on = [
+    docker_container.competator_db_container,
+    docker_container.competator_redis
+  ]
 }
 
-# Elastic IP for fixed public address
-resource "aws_eip" "server_eip" {
-  instance = aws_instance.docker_server.id
-  domain   = "vpc"
+# -----------------------------------------------------------------------------
+# 7. Laravel Reverb WebSocket Container
+# -----------------------------------------------------------------------------
+resource "docker_container" "reverb" {
+  name  = "competator_tf_reverb"
+  image = docker_image.http_app.image_id
 
-  tags = {
-    Name = "${var.project_name}-eip"
+  command = ["php", "artisan", "reverb:start", "--host=0.0.0.0", "--port=9090"]
+
+  env = concat(local.env_list, [
+    "DB_HOST=db",
+    "DB_PORT=3306",
+    "REDIS_HOST=redis",
+    "REDIS_PORT=6379"
+  ])
+
+  ports {
+    internal = 9090
+    external = 9090
   }
+
+  networks_advanced {
+    name = docker_network.competator_network.name
+  }
+
+  depends_on = [
+    docker_container.competator_db_container,
+    docker_container.competator_redis
+  ]
 }

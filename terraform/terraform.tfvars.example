@@ -1,6 +1,0 @@
-aws_region       = "us-east-1"
-project_name     = "competitor-analyzer"
-environment      = "tutorial"
-instance_type    = "t3.small"
-ssh_public_key   = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI... your_email@example.com"
-allowed_ssh_cidr = "0.0.0.0/0"
