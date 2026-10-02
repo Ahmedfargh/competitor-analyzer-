@@ -80,7 +80,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: php artisan queue:work
+    command: php artisan queue:work --tries=3
     container_name: competator_queue
     restart: unless-stopped
     env_file:
@@ -92,7 +92,28 @@ services:
       - REDIS_PORT=6379
     depends_on:
       db:
-        condition: service_healthy # Waits for MySQL ping to pass before booting queue
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - laravel-network
+  schedular:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: schedular
+    restart: unless-stopped
+    command: php artisan schedule:work
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      db:
+        condition: service_healthy
       redis:
         condition: service_started
     networks:
